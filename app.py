@@ -1296,6 +1296,10 @@ class CircularGauge:
                 r = int(255 * (0.2 + 0.8 * np.sin(4 * np.pi * seg_start)))
                 g = int(255 * (0.2 + 0.8 * np.sin(4 * np.pi * seg_start + np.pi/2)))
                 b = int(255 * (0.2 + 0.8 * np.sin(4 * np.pi * seg_start + np.pi)))
+                # Ensure values are within 0-255 range
+                r = max(0, min(255, r))
+                g = max(0, min(255, g))
+                b = max(0, min(255, b))
                 seg_color = f'#{r:02x}{g:02x}{b:02x}'
                 
                 seg_arc = Arc(
@@ -2404,4 +2408,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
