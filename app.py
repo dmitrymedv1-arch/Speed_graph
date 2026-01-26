@@ -122,8 +122,8 @@ class CircularGauge:
                 'face': '#0a0a0a',
                 'edge': '#ffffff',
                 'arrow': '#ffffff',
-                'text': '#ffffff',
-                'ticks': 'rgba(255, 255, 255, 0.7)',
+                'text': '#000000',
+                'ticks': 'rgba(0, 0, 0, 0.8)',
                 'value_text': '#ffffff',
                 'title': '#ffffff',
                 'gauge_low': '#ff3366',
@@ -2448,5 +2448,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
