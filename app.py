@@ -1771,7 +1771,7 @@ class CircularGauge:
         formatted_value = self._format_value(current_value)
         
         ax.text(
-            0, -0.05,
+            0, -0.15,
             formatted_value,
             ha='center',
             va='center',
@@ -2408,5 +2408,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
