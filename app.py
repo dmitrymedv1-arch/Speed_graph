@@ -43,7 +43,8 @@ class CircularGauge:
                  max_value: float = 100.0,
                  font_size: int = 12,
                  style: GaugeStyle = GaugeStyle.CLASSIC,
-                 decimals: int = 0):
+                 decimals: int = 0,
+                 is_normalized: bool = False):  # Новый параметр
         """
         Initialize gauge with scientific visualization parameters.
         
@@ -53,12 +54,14 @@ class CircularGauge:
             font_size: Base font size
             style: Visual style of the gauge
             decimals: Number of decimal places to display
+            is_normalized: Whether this gauge displays normalized values
         """
         self.title = title
         self.max_value = max_value
         self.font_size = font_size
         self.style = style
         self.decimals = decimals
+        self.is_normalized = is_normalized  # Новый атрибут
         
         # Get color scheme based on style
         self.colors = self._get_default_colors(style)
@@ -339,11 +342,17 @@ class CircularGauge:
     def _format_value(self, value: float, normalized: bool = False) -> str:
         """
         Format value based on decimal settings.
+        Для нормированных значений всегда используем 2 знака после запятой.
+        Для обычных значений используем указанное количество знаков.
         """
-        if self.decimals == 0:
-            return f"{value:.0f}"
+        if normalized or self.is_normalized:
+            # Всегда 2 знака после запятой для нормированных значений
+            return f"{value:.2f}"
         else:
-            return f"{value:.{self.decimals}f}"
+            if self.decimals == 0:
+                return f"{value:.0f}"
+            else:
+                return f"{value:.{self.decimals}f}"
     
     def create_gauge(self, 
                      current_value: float, 
@@ -480,7 +489,7 @@ class CircularGauge:
         if normalized:
             major_ticks_normalized = np.linspace(0, 1, 6)
             tick_values = major_ticks_normalized
-            tick_labels = [self._format_value(tick) for tick in tick_values]
+            tick_labels = [self._format_value(tick, normalized=True) for tick in tick_values]
             use_ticks_for_angle = major_ticks_normalized
         else:
             num_ticks = 6
@@ -492,9 +501,9 @@ class CircularGauge:
                 if self.max_value >= 1000:
                     tick_labels.append(f"{value/1000:.1f}k")
                 elif self.max_value >= 100:
-                    tick_labels.append(self._format_value(value))
+                    tick_labels.append(self._format_value(value, normalized=False))
                 else:
-                    tick_labels.append(self._format_value(value))
+                    tick_labels.append(self._format_value(value, normalized=False))
             
             use_ticks_for_angle = major_ticks_normalized
         
@@ -814,7 +823,7 @@ class CircularGauge:
         if show_grid:
             if normalized:
                 major_ticks_normalized = np.linspace(0, 1, 6)
-                tick_labels = [self._format_value(tick) for tick in major_ticks_normalized]
+                tick_labels = [self._format_value(tick, normalized=True) for tick in major_ticks_normalized]
             else:
                 major_ticks_normalized = np.linspace(0, 1, 6)
                 tick_values = major_ticks_normalized * self.max_value
@@ -823,9 +832,9 @@ class CircularGauge:
                     if self.max_value >= 1000:
                         tick_labels.append(f"{value/1000:.1f}k")
                     elif self.max_value >= 100:
-                        tick_labels.append(self._format_value(value))
+                        tick_labels.append(self._format_value(value, normalized=False))
                     else:
-                        tick_labels.append(self._format_value(value))
+                        tick_labels.append(self._format_value(value, normalized=False))
             
             for i, tick in enumerate(major_ticks_normalized):
                 angle = self._calculate_angle(tick, normalized=True)
@@ -1558,10 +1567,10 @@ class CircularGauge:
             for pos in key_positions:
                 if normalized:
                     angle = self._calculate_angle(pos, normalized=True)
-                    label = self._format_value(pos)
+                    label = self._format_value(pos, normalized=True)
                 else:
                     angle = self._calculate_angle(pos, normalized=False)
-                    label = self._format_value(pos)
+                    label = self._format_value(pos, normalized=False)
                 
                 # Tiny tick
                 x_tick = (self.gauge_radius + 0.02) * np.cos(np.radians(angle))
@@ -1576,10 +1585,10 @@ class CircularGauge:
         """Add neon-style scale marks."""
         if normalized:
             ticks = np.linspace(0, 1, 6)
-            labels = [self._format_value(tick) for tick in ticks]
+            labels = [self._format_value(tick, normalized=True) for tick in ticks]
         else:
             ticks = np.linspace(0, self.max_value, 6)
-            labels = [self._format_value(tick) for tick in ticks]
+            labels = [self._format_value(tick, normalized=False) for tick in ticks]
             ticks = ticks / self.max_value
         
         for tick, label in zip(ticks, labels):
@@ -1644,7 +1653,7 @@ class CircularGauge:
             y_label = label_r * np.sin(np.radians(angle))
             
             value = major_ticks[i] if not normalized else tick
-            ax.text(x_label, y_label, self._format_value(value),
+            ax.text(x_label, y_label, self._format_value(value, normalized),
                    ha='center', va='center', fontsize=self.font_size-2,
                    color=self.colors['text'], zorder=4)
     
@@ -1652,10 +1661,10 @@ class CircularGauge:
         """Add medical-style scale marks."""
         if normalized:
             ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
-            labels = [self._format_value(t) for t in ticks]
+            labels = [self._format_value(t, normalized=True) for t in ticks]
         else:
             ticks = np.linspace(0, self.max_value, 6)
-            labels = [self._format_value(t) for t in ticks]
+            labels = [self._format_value(t, normalized=False) for t in ticks]
             ticks = ticks / self.max_value
         
         for tick, label in zip(ticks, labels):
@@ -1677,10 +1686,10 @@ class CircularGauge:
         """Add quantum-style scale marks."""
         if normalized:
             ticks = np.linspace(0, 1, 7)
-            labels = [self._format_value(t) for t in ticks]
+            labels = [self._format_value(t, normalized=True) for t in ticks]
         else:
             ticks = np.linspace(0, self.max_value, 7)
-            labels = [self._format_value(t) for t in ticks]
+            labels = [self._format_value(t, normalized=False) for t in ticks]
             ticks = ticks / self.max_value
         
         for tick, label in zip(ticks, labels):
@@ -1704,10 +1713,10 @@ class CircularGauge:
         """Add celestial-style scale marks."""
         if normalized:
             ticks = np.linspace(0, 1, 8)
-            labels = [self._format_value(t) for t in ticks]
+            labels = [self._format_value(t, normalized=True) for t in ticks]
         else:
             ticks = np.linspace(0, self.max_value, 8)
-            labels = [self._format_value(t) for t in ticks]
+            labels = [self._format_value(t, normalized=False) for t in ticks]
             ticks = ticks / self.max_value
         
         for i, (tick, label) in enumerate(zip(ticks, labels)):
@@ -1729,10 +1738,10 @@ class CircularGauge:
         """Add geometric-style scale marks."""
         if normalized:
             ticks = np.linspace(0, 1, 5)
-            labels = [self._format_value(t) for t in ticks]
+            labels = [self._format_value(t, normalized=True) for t in ticks]
         else:
             ticks = np.linspace(0, self.max_value, 5)
-            labels = [self._format_value(t) for t in ticks]
+            labels = [self._format_value(t, normalized=False) for t in ticks]
             ticks = ticks / self.max_value
         
         for tick, label in zip(ticks, labels):
@@ -1768,7 +1777,7 @@ class CircularGauge:
         )
         
         # Current value (large, centered)
-        formatted_value = self._format_value(current_value)
+        formatted_value = self._format_value(current_value, normalized)
         
         ax.text(
             0, -0.18,
@@ -1798,7 +1807,7 @@ class CircularGauge:
         )
         
         # Value (clean and simple)
-        formatted_value = self._format_value(current_value)
+        formatted_value = self._format_value(current_value, normalized)
         
         ax.text(
             0, -0.05,
@@ -1842,7 +1851,7 @@ def main():
             "Decimal Places",
             [0, 1, 2, 3],
             index=0,
-            help="Number of decimal places to display for values"
+            help="Number of decimal places to display for standard gauge values"
         )
         
         # Style selection from all available styles
@@ -2061,7 +2070,8 @@ def main():
                 max_value=max_value,
                 font_size=font_size,
                 style=style_obj,
-                decimals=decimals
+                decimals=decimals,
+                is_normalized=False  # Стандартный график использует настройки decimal places
             )
             
             gauge.set_color_scheme(
@@ -2098,7 +2108,8 @@ def main():
                     max_value=1.0,
                     font_size=font_size,
                     style=style_obj,
-                    decimals=decimals
+                    decimals=2,  # Всегда 2 знака после запятой для нормированного графика
+                    is_normalized=True  # Указываем, что это нормированный график
                 )
                 
                 normalized_gauge.set_color_scheme(
@@ -2133,8 +2144,15 @@ def main():
                 plt.close(norm_fig)
         
         # Value information
-        formatted_value = f"{current_value:.{decimals}f}" if decimals > 0 else f"{current_value:.0f}"
-        st.info(f"**Value:** {formatted_value} / {max_value:.{decimals}f}" if decimals > 0 else f"{formatted_value} / {max_value:.0f}")
+        # Для стандартного значения используем выбранное количество знаков
+        if decimals > 0:
+            formatted_value = f"{current_value:.{decimals}f}"
+            max_formatted = f"{max_value:.{decimals}f}"
+        else:
+            formatted_value = f"{current_value:.0f}"
+            max_formatted = f"{max_value:.0f}"
+            
+        st.info(f"**Value:** {formatted_value} / {max_formatted}")
         
     else:  # Multiple Samples mode
         if show_normalized:
@@ -2150,7 +2168,8 @@ def main():
                         max_value=max_value,
                         font_size=font_size - 2,
                         style=style_obj,
-                        decimals=decimals
+                        decimals=decimals,
+                        is_normalized=False  # Стандартные графики
                     )
                     
                     # Use sample color for the gauge
@@ -2186,7 +2205,8 @@ def main():
                         max_value=1.0,
                         font_size=font_size - 2,
                         style=style_obj,
-                        decimals=decimals
+                        decimals=2,  # Всегда 2 знака после запятой для нормированных
+                        is_normalized=True  # Нормированные графики
                     )
                     
                     normalized_gauge.set_color_scheme(
@@ -2222,7 +2242,8 @@ def main():
                             max_value=max_value,
                             font_size=font_size,
                             style=style_obj,
-                            decimals=decimals
+                            decimals=decimals,
+                            is_normalized=False
                         )
                         
                         gauge.set_color_scheme(
@@ -2257,7 +2278,8 @@ def main():
                             max_value=1.0,
                             font_size=font_size,
                             style=style_obj,
-                            decimals=decimals
+                            decimals=2,  # Всегда 2 знака после запятой
+                            is_normalized=True
                         )
                         
                         normalized_gauge.set_color_scheme(
@@ -2305,7 +2327,8 @@ def main():
                         max_value=max_value,
                         font_size=font_size,
                         style=style_obj,
-                        decimals=decimals
+                        decimals=decimals,
+                        is_normalized=False
                     )
                     
                     gauge.set_color_scheme(
@@ -2345,16 +2368,29 @@ def main():
         min_value = np.min(values)
         max_value_val = np.max(values)
         
+        # Форматирование статистики с учетом выбранного количества знаков
+        if decimals > 0:
+            avg_formatted = f"{avg_value:.{decimals}f}"
+            min_formatted = f"{min_value:.{decimals}f}"
+            max_formatted = f"{max_value_val:.{decimals}f}"
+            range_val = max_value_val - min_value
+            range_formatted = f"{range_val:.{decimals}f}"
+        else:
+            avg_formatted = f"{avg_value:.0f}"
+            min_formatted = f"{min_value:.0f}"
+            max_formatted = f"{max_value_val:.0f}"
+            range_val = max_value_val - min_value
+            range_formatted = f"{range_val:.0f}"
+        
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.metric("Average", f"{avg_value:.{decimals}f}" if decimals > 0 else f"{avg_value:.0f}")
+            st.metric("Average", avg_formatted)
         with col2:
-            st.metric("Minimum", f"{min_value:.{decimals}f}" if decimals > 0 else f"{min_value:.0f}")
+            st.metric("Minimum", min_formatted)
         with col3:
-            st.metric("Maximum", f"{max_value_val:.{decimals}f}" if decimals > 0 else f"{max_value_val:.0f}")
+            st.metric("Maximum", max_formatted)
         with col4:
-            range_val = max_value_val - min_value
-            st.metric("Range", f"{range_val:.{decimals}f}" if decimals > 0 else f"{range_val:.0f}")
+            st.metric("Range", range_formatted)
     
     # Footer with features and instructions
     st.markdown("---")
@@ -2362,18 +2398,20 @@ def main():
     ### 🎯 Features
     - **11 Gauge Styles:** Classic, Tech, Gradient, Gradient Pulse, Neon Future, Material Science, Biomedical, Quantum, Celestial, Geometric, Minimalist
     - **Two Display Modes:** Single gauge or multiple sample comparison
-    - **Decimal Control:** Configure number of decimal places (0-3)
-    - **Normalization:** Display gauges with 0-1 normalized scale
+    - **Decimal Control:** Configure number of decimal places (0-3) for standard gauges
+    - **Normalization:** Display gauges with 0-1 normalized scale (always 2 decimal places)
     - **Full Color Customization:** Control over all visual elements
     - **High-Quality Export:** Adjustable DPI (300-600) for publication quality
     - **Scientific Ready:** Designed for research presentations and academic papers
     
     ### 📝 Instructions
     1. Configure all settings in the sidebar
-    2. For multiple samples: expand each sample section to configure individually
-    3. Use download buttons to save individual gauges or entire sets as ZIP
-    4. Use higher DPI settings for publication-quality images
-    5. Experiment with different styles for various presentation contexts
+    2. **Decimal Places** setting applies only to standard gauges
+    3. Normalized gauges always show 2 decimal places
+    4. For multiple samples: expand each sample section to configure individually
+    5. Use download buttons to save individual gauges or entire sets as ZIP
+    6. Use higher DPI settings for publication-quality images
+    7. Experiment with different styles for various presentation contexts
     """)
     
     # About section
@@ -2396,21 +2434,17 @@ def main():
         **Key features:**
         - 11 distinct visualization styles
         - Precise control over numerical formatting
+        - Standard gauges use configured decimal places (0-3)
+        - Normalized gauges always show 2 decimal places
         - High-quality export for publications
         - Customizable color schemes for brand consistency
         - Support for both absolute and normalized values
         
         **developed by @daM, @CTA, https://chimicatechnoacta.ru **
         
-        *Version 2.0 - Enhanced with 7 new scientific visualization styles*
+        *Version 2.1 - Enhanced decimal formatting: standard gauges use configured decimals, normalized gauges always show 2 decimal places*
         """)
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
