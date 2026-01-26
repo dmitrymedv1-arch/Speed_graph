@@ -9,7 +9,7 @@ import io
 
 # Настройки страницы
 st.set_page_config(
-    page_title="Scientific Gauge Generator",
+    page_title="Speed map Generator",
     page_icon="🎛️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -797,7 +797,7 @@ def main():
     """Main Streamlit app."""
     
     # Заголовок приложения
-    st.title("🎛️ Scientific Gauge Generator")
+    st.title("🎛️ Speed map Generator")
     st.markdown("""
     Generate circular gauges with arrows for scientific visualization. 
     Supports single gauges or multiple sample comparison with 4 different styles.
@@ -1242,7 +1242,7 @@ def main():
     # Информация о приложении
     with st.expander("ℹ️ About this App"):
         st.markdown("""
-        **Scientific Gauge Generator**  
+        **Speed map generator**  
         Created for scientific visualization of quantitative data.
         
         This tool generates circular gauge indicators similar to speedometers
@@ -1255,11 +1255,9 @@ def main():
         - Comparative analysis of samples
         - Scientific presentations and publications
         
-        **Technical details:**
-        - Built with Python, Matplotlib, and Streamlit
-        - Open-source and customizable
-        - Supports high-resolution export for publications
+        **developed by @daM, @CTA, https://chimicatechnoacta.ru **.
         """)
 
 if __name__ == "__main__":
+
     main()
