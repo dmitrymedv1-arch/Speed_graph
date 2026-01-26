@@ -1139,8 +1139,8 @@ class CircularGauge:
                         width=2 * self.gauge_radius,
                         height=2 * self.gauge_radius,
                         angle=0,
-                        theta1=self.start_angle - zone_start * (self.start_angle - self.end_angle),
-                        theta2=self.start_angle - zone_end * (self.start_angle - self.end_angle),
+                        theta1=self.start_angle - zone_end * (self.start_angle - self.end_angle),
+                        theta2=self.start_angle - zone_start * (self.start_angle - self.end_angle),
                         linewidth=20,
                         color=zone_colors[i],
                         alpha=0.7,
@@ -2448,4 +2448,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
