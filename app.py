@@ -1757,7 +1757,7 @@ class CircularGauge:
         """
         # Title
         ax.text(
-            0, 1.25,
+            0, 1.15,
             self.title,
             ha='center',
             va='center',
@@ -2408,6 +2408,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
