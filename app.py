@@ -1083,6 +1083,9 @@ class CircularGauge:
         # Medical chart background
         ax.set_facecolor(self.colors['face'])
         
+        # Calculate normalized value
+        norm_value = current_value / self.max_value if not normalized else current_value
+        
         # ECG-style grid
         for y in np.linspace(-0.1, 0.9, 11):
             ax.plot([-1, 1], [y, y], color=self.colors['highlight'], linewidth=0.5, alpha=0.2, zorder=0)
@@ -1108,6 +1111,9 @@ class CircularGauge:
             zorder=2
         )
         ax.add_patch(gauge_body)
+        
+        # Calculate normalized value
+        norm_value = current_value / self.max_value if not normalized else current_value
         
         # Health indicator zones
         zone_colors = [self.colors['gauge_low'], self.colors['gauge_mid'], self.colors['gauge_high']]
@@ -2398,3 +2404,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
