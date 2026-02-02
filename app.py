@@ -426,7 +426,7 @@ class CircularGauge:
             zorder=2
         )
         ax.add_patch(arc)
-        
+
         # Colored value arc with gradient segments
         norm_value = current_value / self.max_value if not normalized else current_value
         num_segments = 20
@@ -434,7 +434,7 @@ class CircularGauge:
             seg_start = i / num_segments
             seg_end = (i + 1) / num_segments
             
-            if seg_end <= norm_value:
+            if seg_end <= norm_value:  # Проблема здесь - используется seg_end, а не seg_start
                 seg_color = self._get_arrow_color(seg_end if normalized else seg_end * self.max_value, normalized)
                 
                 seg_arc = Arc(
@@ -2467,6 +2467,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
