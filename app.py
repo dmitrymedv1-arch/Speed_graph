@@ -1866,13 +1866,29 @@ def main():
         
         # Mode-specific parameters
         if mode == "Single Gauge":
-            current_value = st.number_input(
-                "Current Value", 
-                min_value=0.0, 
-                max_value=float(max_value), 
-                value=65.0, 
-                step=0.1
-            )
+            try:
+                max_val = float(max_value)
+            except:
+                max_val = 100.0
+                
+            if max_val > 0:
+                current_value = st.number_input(
+                    "Current Value",
+                    min_value=0.0,
+                    max_value=max_val,
+                    value=min(65.0, max_val),
+                    step=0.1,
+                    format="%.3f"
+                )
+            else:
+                current_value = st.number_input(
+                    "Current Value",
+                    min_value=0.0,
+                    value=65.0,
+                    step=0.1,
+                    format="%.3f"
+                )
+            
             show_normalized = st.checkbox("Show Normalized Gauge", True)
         else:
             num_samples = st.slider("Number of Samples", 2, 8, 3)
@@ -2451,6 +2467,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
