@@ -1866,9 +1866,12 @@ def main():
         
         # Mode-specific parameters
         if mode == "Single Gauge":
-            current_value = st.slider(
+            current_value = st.number_input(
                 "Current Value", 
-                0.0, float(max_value), 65.0, 0.1
+                min_value=0.0, 
+                max_value=float(max_value), 
+                value=65.0, 
+                step=0.1
             )
             show_normalized = st.checkbox("Show Normalized Gauge", True)
         else:
@@ -2448,6 +2451,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
