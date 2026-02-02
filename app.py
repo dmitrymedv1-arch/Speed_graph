@@ -434,15 +434,22 @@ class CircularGauge:
             seg_start = i / num_segments
             seg_end = (i + 1) / num_segments
             
-            if seg_end <= norm_value:  # Проблема здесь - используется seg_end, а не seg_start
-                seg_color = self._get_arrow_color(seg_end if normalized else seg_end * self.max_value, normalized)
+            # Исправлено: проверяем начало сегмента, а не конец
+            if seg_start < norm_value:
+                # Берем середину сегмента для цвета
+                seg_mid = (seg_start + seg_end) / 2
+                seg_mid_value = seg_mid if normalized else seg_mid * self.max_value
+                seg_color = self._get_arrow_color(seg_mid_value, normalized)
+                
+                # Ограничиваем сегмент текущим значением
+                actual_end = min(seg_end, norm_value)
                 
                 seg_arc = Arc(
                     self.center,
                     width=2 * self.gauge_radius,
                     height=2 * self.gauge_radius,
                     angle=0,
-                    theta1=self.start_angle - seg_end * (self.start_angle - self.end_angle),
+                    theta1=self.start_angle - actual_end * (self.start_angle - self.end_angle),
                     theta2=self.start_angle - seg_start * (self.start_angle - self.end_angle),
                     linewidth=20,
                     color=seg_color,
@@ -2467,6 +2474,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
